@@ -1,12 +1,13 @@
-# Vert.x Gradle Template
+Introduction
+------------
+mod-asterisk its a library that register to the Vertx eventbus and allows to communicate to
+an Asterisk Manager Interface (AMI). However, it includes a full application
+useful to monitor an asterisk installation.
 
-Template project for creating a Vert.x module with a Gradle build.
+You will be able to login, receive asynchronous events, and send actions (also,
+asynchronously receiving the according response with their optional related
+events).
 
-Clone this and adapt it to easily develop Vert.x modules using Gradle as your build tool.
-
-By default this module contains a simple Java verticle which listens on the event bus and responds to `ping!`
-messages with `pong!`.
-
-This template also shows you how to write tests in Java, Groovy, Ruby and Python
-
-See the [build script](build.gradle) for the list of useful tasks
+Requirements
+------------
+ * vertx 2.1RC1
