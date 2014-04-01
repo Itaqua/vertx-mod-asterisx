@@ -1,3 +1,8 @@
+vertx-mod-asterisk
+==================
+
+Asterisk AMI Module for Vertex
+
 Introduction
 ------------
 mod-asterisk its a library that register to the Vertx eventbus and allows to communicate to
@@ -11,3 +16,4 @@ events).
 Requirements
 ------------
  * vertx 2.1RC1
+
