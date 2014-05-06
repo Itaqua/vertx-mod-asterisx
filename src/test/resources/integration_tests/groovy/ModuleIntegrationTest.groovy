@@ -30,6 +30,21 @@ def testLogin() {
   vertx.eventBus.send(asterisk_local, [action:"connect"])
 }
 
+def testLoginP2P() {
+  container.logger.info("in testLoginP2P()")
+
+  vertx.eventBus.sendWithTimeout(asterisk_local, [action:"connect"], 2000){ asyncResult ->
+    assertNotNull asyncResult
+    assertTrue asyncResult.succeeded
+    def body = asyncResult.result.body
+    assertNotNull body
+    println body
+
+    assert body.response == "Success"
+    testComplete()
+  }
+}
+
 def testActionCoreShowChannels() {
     container.logger.info("in testCoreShowChannels()")
 
@@ -59,6 +74,16 @@ def testActionCommandSipShowUsers() {
         }
     }
     vertx.eventBus.send(asterisk_local, [action:"connect"])
+}
+
+def testActionOriginate() {
+    container.logger.info("in testActionOriginate()")
+
+    def msg = [action:'originate',channel:'SIP/103',context:'normal',exten:'101',priority:'1',callerid:'3125551212']
+    vertx.eventBus.send(asterisk_local, msg){
+        println "Ret Val"
+        testComplete()
+    }
 }
 
 // Make sure you initialize

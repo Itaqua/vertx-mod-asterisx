@@ -1,16 +1,14 @@
 {
 
   "main":"groovy:com.n4.pbx.asterisk.AsteriskVerticle",
-  //"lang -impl":"org.vertx.groovy.platform.impl.GroovyVerticleFactory",
-  //"multi-threaded": true,
-  //∫"worker": true,
-  "description":"Asterisk Manager Interface",
-  "licenses": ["The Apache Software License Version 2.0"],
+  "lang-impl":"io.vertx~lang-groovy~2.1RC1:org.vertx.groovy.platform.impl.GroovyVerticleFactory",
+
+  "description":"Asterisk Manager Interface Module for Vertx",
+  "licenses": ["Unlicense"],
   "author": "Octavio Luna",
 
-  // Optional fields
-  "keywords": ["asterisk", "ami"],
+  "keywords": ["asterisk", "ami", "eventBus"]
 
-  "auto-redeploy": true
+  //"auto-redeploy": true
 
 }

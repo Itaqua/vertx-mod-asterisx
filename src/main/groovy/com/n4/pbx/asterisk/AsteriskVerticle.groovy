@@ -40,7 +40,7 @@ class AsteriskVerticle extends Verticle{
 
         ami = vertx.createNetClient()
         ami.reconnectAttempts = -1   //default 0:don't reconnect; -1: try forever
-        ami.reconnectInterval = 500 //default 1000
+        //ami.reconnectInterval = 500 //default 1000
 
     }
 
@@ -83,7 +83,9 @@ class AsteriskVerticle extends Verticle{
         def body = message.body
         switch(body.action) {
             case "connect":
-                doConnect()                
+                doConnect(){ msg ->
+                    message.reply(msg)
+                }     
                 break
             case "close":
                 doClose()
@@ -97,9 +99,10 @@ class AsteriskVerticle extends Verticle{
     }
 
     //Establece la conexión
-    private doConnect = {
+    private doConnect = { callback ->
         if(!connected){
             logger.debug "Opening connection"
+            callbacks["doConnect"] = callback
             ami.connect(port, host, onConnect)
         }
     }
@@ -109,7 +112,6 @@ class AsteriskVerticle extends Verticle{
             //if(reconnect) doConnect()
             send(new Action.Logoff()){rply -> logger.debug "Logged out"}
             logger.debug "Closing connection"
-
             socket.close()
         }
     }
@@ -132,6 +134,10 @@ class AsteriskVerticle extends Verticle{
                 logger.debug 'Socket disconnected'
                 socket = null
                 connected = false
+                
+                if(callbacks["doConnect"]){
+                    (callbacks.remove("doConnect"))(new Message.Response('response:Failed'))
+                }
                 emit(new Message.Event('event:Close'));
             }
 
@@ -144,6 +150,7 @@ class AsteriskVerticle extends Verticle{
             }
 
         }else{
+            logger.error "Yo no debería estar aqui.... onConnect asyncResult.unscucceed"
             asyncResult.cause().printStackTrace()
         }
 
@@ -152,9 +159,16 @@ class AsteriskVerticle extends Verticle{
 
     private send(Action action, callback){
         logger.debug "Sending $action"
-        callbacks[action.actionid] = callback
         responses[action.actionid] = "";
-        socket.write(action.marshall())
+        if(socket){
+            callbacks[action.actionid] = callback
+            socket.write(action.marshall())
+        }else{
+            def retAct = action.clone()
+            retAct.response = "Fail"
+            retAct.message = "Not connected to ${host}"
+            callback(retAct)
+        } 
     }
 
     private emit(Message.Event event){
@@ -205,7 +219,7 @@ class AsteriskVerticle extends Verticle{
         if (response.message && response.message.contains('follow'))
             responses[response.actionid] = response
         else if(callbacks[response.actionid]) {
-            (callbacks.remove(response.actionid))(response);
+            (callbacks.remove(response.actionid))(response)
             responses.remove(response.actionid)
         }
     }
@@ -221,6 +235,7 @@ class AsteriskVerticle extends Verticle{
             logger.debug "set Data Handler"
             socket.dataHandler(onData)
             send(new Action.Login(username, secret)){ response ->
+                if(callbacks["doConnect"])(callbacks.remove("doConnect"))(response)
                 if(response.response == "Success") emit("Connected")
                 else emit("LoginFailed")
             }

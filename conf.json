@@ -1,7 +1,7 @@
 {
     "address"  : "asterisk-local",
     "host"     : "asterisk.localhost",
-    "username" : "tapi",
-    "password" : "sys73xrv"
+    "username" : "manager",
+    "secret"   : "password"
 }
 
